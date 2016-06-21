@@ -2,10 +2,11 @@ extern crate clap;
 extern crate notify;
 
 use std::sync::mpsc::channel;
+use std::path::Path;
 use clap::{Arg, App, SubCommand};
 use notify::{RecommendedWatcher, Watcher};
 
-fn watch() -> notify::Result<()> {
+fn watch<P: AsRef<Path>>(clean_path: P, dirty_path: P) -> notify::Result<()> {
     //create channel to get events
     let (tx, rx) = channel();
 
@@ -13,8 +14,8 @@ fn watch() -> notify::Result<()> {
     let mut watcher: RecommendedWatcher = try!(Watcher::new(tx));
 
     //add path to be watched
-    try!(watcher.watch("D:/CleanFolder"));
-    try!(watcher.watch("D:/DirtyFolder"));
+    try!(watcher.watch(clean_path));
+    try!(watcher.watch(dirty_path));
 
     loop {
         match rx.recv() {
@@ -39,12 +40,14 @@ fn main() {
              .long("clean")
              .value_name("FOLDER")
              .takes_value(true)
+             .required(true)
              .help("Sets the clean folder"))
         .arg(Arg::with_name("dirty")
              .short("d")
              .long("dirty")
              .value_name("FOLDER")
              .takes_value(true)
+             .required(true)
              .help("Sets the dirty folder"))
         .subcommand(SubCommand::with_name("watch")
                     .about("Watches folders for changes"))
@@ -53,7 +56,8 @@ fn main() {
     println!("{:?}", matches);
 
     if matches.is_present("watch") {
-        if let Err(err) = watch() {
+        println!("Watch mode enabled");
+        if let Err(err) = watch(matches.value_of("clean").unwrap(), matches.value_of("dirty").unwrap()) {
             println!("Error! {:?}", err)
         }
     }
