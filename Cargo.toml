@@ -5,3 +5,4 @@ authors = ["Mateusz Mrowiec <mateusz@kotrak.pl>"]
 
 [dependencies]
 notify = "*"
+clap = "*"
