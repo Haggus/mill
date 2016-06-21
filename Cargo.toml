@@ -1,0 +1,6 @@
+[package]
+name = "mill"
+version = "0.1.0"
+authors = ["Mateusz Mrowiec <mateusz@kotrak.pl>"]
+
+[dependencies]
