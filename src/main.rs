@@ -1,10 +1,12 @@
 extern crate clap;
 extern crate notify;
+extern crate config;
 
 use std::sync::mpsc::channel;
 use std::path::Path;
 use clap::{Arg, App, SubCommand};
 use notify::{RecommendedWatcher, Watcher};
+use config::reader::from_file;
 
 fn watch<P: AsRef<Path>>(clean_path: P, dirty_path: P) -> notify::Result<()> {
     //create channel to get events
@@ -31,6 +33,8 @@ fn watch<P: AsRef<Path>>(clean_path: P, dirty_path: P) -> notify::Result<()> {
 }
 
 fn main() {
+    let config_file = from_file(Path::new("./mill.conf")).unwrap();
+
     let matches = App::new("mill")
         .version("0.1")
         .author("Mateusz Mrowiec <matt.mrowiec@gmail.com>")
@@ -40,19 +44,28 @@ fn main() {
              .long("clean")
              .value_name("FOLDER")
              .takes_value(true)
-             .required(true)
              .help("Sets the clean folder"))
         .arg(Arg::with_name("dirty")
              .short("d")
              .long("dirty")
              .value_name("FOLDER")
              .takes_value(true)
-             .required(true)
              .help("Sets the dirty folder"))
         .subcommand(SubCommand::with_name("watch")
                     .about("Watches folders for changes"))
         .get_matches();
 
+    match config_file {
+        Ok(c) => {
+            println!("clean and dirty from config file");
+        }
+        _ => println!("yolo")
+    }
+    // } else {
+    //     if matches.is_present("clean") && matches.is_present("dirty") {
+    //         println!("clean and dirty from arguments");
+    //     }
+    // }
     println!("{:?}", matches);
 
     if matches.is_present("watch") {
